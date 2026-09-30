@@ -1,4 +1,4 @@
-# Direct trim
+# How to trim properly
 
 If you play any sort of flight sim you're probably familiar with trimming: compensating for pitch, roll, or yaw not by counteracting them with your stick or yoke, but by setting turning some knobs that add some elevator, aileron, or rudder offset so the plane's control surfaces to balance the forces acting on the plane.
 
@@ -10,6 +10,29 @@ So let's make a trim box that literally offsets our elevator, aileron, and rudde
 
 USB devices are just digital signal boxes, so it should be entirely possible to make something that sits between our stick/yoke and the computer, reading every signal that it sees from the stick/yoke and passing those values on, _except_ when it sees values associated with the pitch, roll, and yaw axes. For those, we want it to first add or subtract a trim offset, and _then_ pass the value on.
 
+```mermaid
+flowchart LR
+    J[Joystick]
+    C[Computer]
+
+    subgraph T[Trim box]
+        Q{trimmable axis?}
+        A[add offset]
+        P[pass through]
+        O[Output]
+    end
+
+    J --> Q
+    Q -- yes --> A
+    Q -- no --> P
+    A --> O
+    P --> O
+    O --> C
+
+```
+
+
+
 So we'll need something that we can plug between the stick/yoke and computer: an Arduino Leonardo with a USB host shield will work fine for that.
 
 And we'll need some code that makes that arduino register as "our stick/yoke" and then pass any and all USB signals through. For which there are libraries that we can simply load into an Arduino sketch.
@@ -20,29 +43,35 @@ And finally we'll probably want something that lets us see what trim values are 
 
 ## Components
 
-### The Arduino
-
 So, the list of components I'll be using - you can of course use different ones, but then you'll probably also have to change the code to work with those (which might be super easy, or rather a lot of work depending on how similar/compatible your choices are).
 
-One thing we can't change is that this requires an Arduino Leonardo: we need an Arduino that can itself act as a USB device. If you're familiar with Arduino you'll know that you program and communicate with them via a serial COM port, even though you plug them in with a little usb cable: that's a problem. We want to intercept USB signals and then relay those _as USB signals_ so we need an Arduino flavour that has "being a USB device" built in. You have some options, I went with an [Keyestudio "Leonardo"](https://www.amazon.ca/KEYESTUDIO-Leonardo-Development-Board-Arduino/dp/B0786LJQ8K) which uses the ATmega32U4 and has 28kb of ROM storage, which isn't a lot, but just about enough for what we're going to be doing.
+### The Arduino
+
+![keystudio leonardo](./images/leonardo.jpg)
+
+Since we're going to play the USB pass-through game, we need an Arduino that can act as a USB device. If you're familiar with Arduinos you'll know that you program and communicate with them via a serial COM port, even though you plug them in with a little usb cable: that's a problem. We want to intercept USB signals and then relay those _as USB signals_ so we need an Arduino flavour that has "being a USB device" built in. You have some options, I went with an [Keyestudio "Leonardo"](https://www.amazon.ca/KEYESTUDIO-Leonardo-Development-Board-Arduino/dp/B0786LJQ8K) which uses the ATmega32U4 and has 28kb of program space and 2.5kb of dynamic memory, which isn't a lot, but should be just about enough for what we're going to be doing.
 
 ### Making the Arduino act as a USB hub
 
-Second, we'll need a "USB Host" board so that the Arduino can pretend to be a USB hub that you can plug other devices into. Thankfully, there are dozens of "USB Host Shield" boards that you can buy that plug directly into the standard Arduino pin holes to add the functionality we need.
+![USB host shield](./images/usb-host-shield.jpg)
+
+Second, we'll need something that lets the Arduino pretend to be a USB hub that you can plug other devices into. Thankfully, there are dozens of "USB Host Shield" boards that you can buy that plug directly into the standard Arduino pin headers to add the functionality we need.
 
 I ended up [with this one](https://www.amazon.ca/ARCELI-Shield-Arduino-Support-Android/dp/B07J2KKGZ4) and that was very much purely a "which one is the cheapest" choice.
 
 ### Rotary controls
 
-Third through Ninth: we want rotary encoders. These are the infinitely-spinny, clicky rotating knobs. We could use potentiometers, which are the "off to full" knobs with hard stops on both ends, but these are analog components without any sort of precision in terms of how much they're offsetting, so for precision we want digital components: rotary encoders basically generate "left" or "right" signals for every click you move them, with the fancy ones also letting you press the knob as if it's a regular button, which gives us everything we need to increase, decrease, or reset an offset.
+![Rotary encoders](./images/rotary-encoders.jpg)
 
-I got these [lovely encoders with RGB led](https://www.adafruit.com/product/4991), which simply daisy-chain through each other with little stemma cables, and to an Arduino using a stemma breakout cable.
+Third through Ninth: we want rotary encoders. These are the infinitely-spinny, clicky rotating knobs. We could use potentiometers, which are the "off to full" knobs with hard stops on both ends, but those are analog components without any sort of precision in terms of how much they're offsetting, so for precision we want digital components: rotary encoders basically generate "left" or "right" signals for every click you move them, with the fancy ones also letting you press the knob as if it's a regular button, which gives us everything we need to increase, decrease, or reset an offset value.
+
+I got these [lovely AdaFruit encoders with RGB leds](https://www.adafruit.com/product/4991), which simply daisy-chain through each other with little stemma cables, and to an Arduino using a stemma breakout cable.
 
 ### Seeing what we're doing
 
-Lastly, we'll want a 4x20 or even "pixel" display so we can see what values we're actually setting while we're trimming.
+![LCD display](./images/display.jpg)
 
-I ended up getting this [nice and big green LCD display](https://www.amazon.ca/WayinTop-Display-Interface-Adapter-Arduino/dp/B07TXBV8MS) with a little I2C "backpack".
+Lastly, we'll want a 4x20 character (or even "just pixels") display so we can see what offset values we're actually setting while we're trimming. I ended up getting this [nice and big green LCD display](https://www.amazon.ca/WayinTop-Display-Interface-Adapter-Arduino/dp/B07TXBV8MS) with a little I2C "backpack" so it can just daisy-chain off the I2C rotary encoders.
 
 ## Setting up the code
 
@@ -141,7 +170,6 @@ found encoder at 0x3B
 Then you just turn each knob in order:
 
 ```text
-
 # turn the coarse pitch encoder
   coarse pitch is 0x39
 # turn the fine pitch encoder
@@ -156,7 +184,7 @@ Then you just turn each knob in order:
   fine rudder is 0x38
 ```
 
-And once you input the last one, you're given the code you need to update:
+And once you've input the last one, you're given the code you need to update:
 
 ```
 // ---- stick-trim-box/trim-control.ino: replace these lines ----
@@ -178,6 +206,73 @@ Sketch uses 28628 bytes (99%) of program storage space. Maximum is 28672 bytes.
 Global variables use 1052 bytes (41%) of dynamic memory, leaving 1508 bytes for local variables. Maximum is 2560 bytes.
 ```
 
-After uploading, plug in your stick/yoke and reset the Arduino, then fire up `joy.cpl` which is the Windows "Game Controllers" control panel. Select your "hijacked" device, and click "properties", which gives you a live readout of all the axes and buttons on your device. Rotating the coarse control knobs should show the "+" and Z-Rotation axes change, and pressing encodes as buttons should reset the offsets.
+After uploading, plug in your stick/yoke and reset the Arduino, then fire up `joy.cpl` which is the Windows "Game Controllers" control panel.
+
+![Our trim box as game controller](./images/joy.cpl.png)
+
+ Select your "hijacked" device, and click "properties", which gives you a live readout of all the axes and buttons on your device. Rotating the coarse control knobs should show the "+" and Z-Rotation axes change, and pressing encodes as buttons should reset the offsets.
+
+![Manipulating the trim values](./images/joy.cpl.details.png)
 
 If so: you're set! Go and enjoy your flight simming with "it just works" trim control, instead of having to mess with controller bindings!
+
+### "Why does it say Arduino Leonardo?"
+
+By default, your joystick will now show up as an Arduino Leonardo because that's literally what it is, but we can change the name and vendor/product ids that it registers with by defining a new board in the `boards.txt` that the Arduino IDE uses.
+
+Find out which one your IDE uses (too many options so I'll leave the rest of the internet to explain how to do that) and then add a new board at the end.
+
+In my case, I added the following to the boards.txt in my user's arduino51/AVR folder:
+
+```ini
+##############################################################
+
+gladiator.name=Gladiator NXT Passthrough (Leonardo)
+
+gladiator.vid.0=0x2341
+gladiator.pid.0=0x0036
+gladiator.vid.1=0x2341
+gladiator.pid.1=0x8036
+gladiator.vid.2=0x2A03
+gladiator.pid.2=0x0036
+gladiator.vid.3=0x2A03
+gladiator.pid.3=0x8036
+gladiator.vid.4=0x231D
+gladiator.pid.4=0x0201
+
+gladiator.upload.tool=avrdude
+gladiator.upload.protocol=avr109
+gladiator.upload.maximum_size=28672
+gladiator.upload.maximum_data_size=2560
+gladiator.upload.speed=57600
+gladiator.upload.disable_flushing=true
+gladiator.upload.use_1200bps_touch=true
+gladiator.upload.wait_for_upload_port=true
+
+gladiator.bootloader.tool=avrdude
+gladiator.bootloader.low_fuses=0xff
+gladiator.bootloader.high_fuses=0xd8
+gladiator.bootloader.extended_fuses=0xcb
+gladiator.bootloader.file=caterina/Caterina-Leonardo.hex
+gladiator.bootloader.unlock_bits=0x3F
+gladiator.bootloader.lock_bits=0x2F
+
+gladiator.build.mcu=atmega32u4
+gladiator.build.f_cpu=16000000L
+gladiator.build.vid=0x231D
+gladiator.build.pid=0x0201
+gladiator.build.usb_manufacturer="VKB-Sim (c) Alex Oz 2021"
+gladiator.build.usb_product=" VKBsim Gladiator EVO  L  "
+gladiator.build.board=AVR_LEONARDO
+gladiator.build.core=arduino
+gladiator.build.variant=leonardo
+gladiator.build.extra_flags={build.usb_flags}
+```
+
+The vendor and product ids and strings are the ones reported by the `joystick-dump` code, also in this particular case note that I changed the malformed copyright symbol to just "(c)". Also note all those extra spaces in the product name... that's what my joystick reported, so that's what I'm keeping?
+
+And with that in place, you can pick this new board rather than the plain Leonardo profile, reflash our Arduino, and it'll now show up with a much better name, pretending to actually be the joystick we're proxying.
+
+![image-20260930142313714](./images/gladiator.png)
+
+ Neat!

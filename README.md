@@ -1,6 +1,6 @@
 # How to trim properly
 
-If you play any sort of flight sim you're probably familiar with trimming: compensating for pitch, roll, or yaw not by counteracting them with your stick or yoke, but by setting turning some knobs that add some elevator, aileron, or rudder offset so the plane's control surfaces to balance the forces acting on the plane.
+If you play any sort of flight sim you're probably familiar with trimming: compensating for pitch, roll, or yaw not by counteracting them with your stick or yoke, but by turning some knobs that add some elevator, aileron, or rudder offset to the plane's control surfaces to balance the forces acting on the plane.
 
 You're probably also familiar with the fact that in-game trim settings can be a hot mess. Take Microsoft Flight Simulator 2020/2024: there are three axes that need trim, but does not offer axis bindings for all three. Good luck!
 

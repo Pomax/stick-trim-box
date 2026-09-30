@@ -24,19 +24,25 @@ And finally we'll probably want something that lets us see what trim values are 
 
 So, the list of components I'll be using - you can of course use different ones, but then you'll probably also have to change the code to work with those (which might be super easy, or rather a lot of work depending on how similar/compatible your choices are).
 
-One thing we can't change is that this requires an Arduino Leonardo: we need an Arduino that can itself act as a USB device. If you're familiar with Arduino you'll know that you program and communicate with them via a serial COM port, even though you plug them in with a little usb cable: that's a problem. We want to intercept USB signals and then relay those _as USB signals_ so we need an Arduino flavour that has "being a USB device" built in. You have some options, I went with an Arduino "Leonardo" which uses the ATmega32U4 and has 28kb of ROM storage, which isn't a lot, but just about enough for what we're going to be doing.
+One thing we can't change is that this requires an Arduino Leonardo: we need an Arduino that can itself act as a USB device. If you're familiar with Arduino you'll know that you program and communicate with them via a serial COM port, even though you plug them in with a little usb cable: that's a problem. We want to intercept USB signals and then relay those _as USB signals_ so we need an Arduino flavour that has "being a USB device" built in. You have some options, I went with an [Keyestudio "Leonardo"](https://www.amazon.ca/KEYESTUDIO-Leonardo-Development-Board-Arduino/dp/B0786LJQ8K) which uses the ATmega32U4 and has 28kb of ROM storage, which isn't a lot, but just about enough for what we're going to be doing.
 
 ### Making the Arduino act as a USB hub
 
 Second, we'll need a "USB Host" board so that the Arduino can pretend to be a USB hub that you can plug other devices into. Thankfully, there are dozens of "USB Host Shield" boards that you can buy that plug directly into the standard Arduino pin holes to add the functionality we need.
 
+I ended up [with this one](https://www.amazon.ca/ARCELI-Shield-Arduino-Support-Android/dp/B07J2KKGZ4) and that was very much purely a "which one is the cheapest" choice.
+
 ### Rotary controls
 
 Third through Ninth: we want rotary encoders. These are the infinitely-spinny, clicky rotating knobs. We could use potentiometers, which are the "off to full" knobs with hard stops on both ends, but these are analog components without any sort of precision in terms of how much they're offsetting, so for precision we want digital components: rotary encoders basically generate "left" or "right" signals for every click you move them, with the fancy ones also letting you press the knob as if it's a regular button, which gives us everything we need to increase, decrease, or reset an offset.
 
+I got these [lovely encoders with RGB led](https://www.adafruit.com/product/4991), which simply daisy-chain through each other with little stemma cables, and to an Arduino using a stemma breakout cable.
+
 ### Seeing what we're doing
 
 Lastly, we'll want a 4x20 or even "pixel" display so we can see what values we're actually setting while we're trimming.
+
+I ended up getting this [nice and big green LCD display](https://www.amazon.ca/WayinTop-Display-Interface-Adapter-Arduino/dp/B07TXBV8MS) with a little I2C "backpack".
 
 ## Setting up the code
 

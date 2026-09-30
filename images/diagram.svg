@@ -1,0 +1,524 @@
+<svg id="diagram" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300">
+    <style>
+        #diagram {
+            font-family: "trebuchet ms", verdana, arial, sans-serif;
+            font-size: 16px;
+            fill: #333;
+        }
+        @keyframes edge-animation-frame {
+            from {
+                stroke-dashoffset: 0;
+            }
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        #diagram .edge-animation-slow {
+            stroke-dasharray: 9, 5 !important;
+            stroke-dashoffset: 900;
+            animation: dash 50s linear infinite;
+            stroke-linecap: round;
+        }
+        #diagram .edge-animation-fast {
+            stroke-dasharray: 9, 5 !important;
+            stroke-dashoffset: 900;
+            animation: dash 20s linear infinite;
+            stroke-linecap: round;
+        }
+        #diagram .error-icon {
+            fill: #552222;
+        }
+        #diagram .error-text {
+            fill: #552222;
+            stroke: #552222;
+        }
+        #diagram .edge-thickness-normal {
+            stroke-width: 1px;
+        }
+        #diagram .edge-thickness-thick {
+            stroke-width: 3.5px;
+        }
+        #diagram .edge-pattern-solid {
+            stroke-dasharray: 0;
+        }
+        #diagram .edge-thickness-invisible {
+            stroke-width: 0;
+            fill: none;
+        }
+        #diagram .edge-pattern-dashed {
+            stroke-dasharray: 3;
+        }
+        #diagram .edge-pattern-dotted {
+            stroke-dasharray: 2;
+        }
+        #diagram .marker {
+            fill: #333333;
+            stroke: #333333;
+        }
+        #diagram .marker.cross {
+            stroke: #333333;
+        }
+        #diagram svg {
+            font-family: "trebuchet ms", verdana, arial, sans-serif;
+            font-size: 16px;
+        }
+        #diagram p {
+            margin: 0;
+        }
+        #diagram .label {
+            font-family: "trebuchet ms", verdana, arial, sans-serif;
+            color: #333;
+        }
+        #diagram .cluster-label text {
+            fill: #333;
+        }
+        #diagram .cluster-label span {
+            color: #333;
+        }
+        #diagram .cluster-label span p {
+            background-color: transparent;
+        }
+        #diagram .label text,
+        #diagram span {
+            fill: #333;
+            color: #333;
+        }
+        #diagram .node rect,
+        #diagram .node circle,
+        #diagram .node ellipse,
+        #diagram .node polygon,
+        #diagram .node path {
+            fill: #ececff;
+            stroke: #9370db;
+            stroke-width: 1px;
+        }
+        #diagram .rough-node .label text,
+        #diagram .node .label text,
+        #diagram .image-shape .label,
+        #diagram .icon-shape .label {
+            text-anchor: middle;
+        }
+        #diagram .node .katex path {
+            fill: #000;
+            stroke: #000;
+            stroke-width: 1px;
+        }
+        #diagram .rough-node .label,
+        #diagram .node .label,
+        #diagram .image-shape .label,
+        #diagram .icon-shape .label {
+            text-align: center;
+        }
+        #diagram .node.clickable {
+            cursor: pointer;
+        }
+        #diagram .root .anchor path {
+            fill: #333333 !important;
+            stroke-width: 0;
+            stroke: #333333;
+        }
+        #diagram .arrowheadPath {
+            fill: #333333;
+        }
+        #diagram .edgePaths .path {
+            stroke: #333333;
+            stroke-width: 1px;
+        }
+        #diagram .flowchart-link {
+            stroke: #333333;
+            fill: none;
+        }
+        #diagram .edgeLabel {
+            background-color: rgba(232, 232, 232, 0.8);
+            text-align: center;
+        }
+        #diagram .edgeLabel p {
+            background-color: rgba(232, 232, 232, 0.8);
+        }
+        #diagram .edgeLabel rect {
+            opacity: 0.5;
+            background-color: rgba(232, 232, 232, 0.8);
+            fill: rgba(232, 232, 232, 0.8);
+        }
+        #diagram .labelBkg {
+            background-color: rgba(232, 232, 232, 0.5);
+        }
+        #diagram .cluster rect {
+            fill: #ffffde;
+            stroke: #aaaa33;
+            stroke-width: 1px;
+        }
+        #diagram .cluster text {
+            fill: #333;
+        }
+        #diagram .cluster span {
+            color: #333;
+        }
+        #diagram .node .collapsed-indicator {
+            fill: #aaaa33;
+            stroke: none;
+            opacity: 0.6;
+        }
+        #diagram .node .collapsed-separator {
+            stroke: #aaaa33;
+            stroke-width: 0.75px;
+        }
+        #diagram div.mermaidTooltip {
+            position: absolute;
+            text-align: center;
+            max-width: 200px;
+            padding: 2px;
+            font-family: "trebuchet ms", verdana, arial, sans-serif;
+            font-size: 12px;
+            background: hsl(80, 100%, 96.2745098039%);
+            border: 1px solid #aaaa33;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #diagram .flowchartTitleText {
+            text-anchor: middle;
+            font-size: 18px;
+            fill: #333;
+        }
+        #diagram rect.text {
+            fill: none;
+            stroke-width: 0;
+        }
+        #diagram .icon-shape,
+        #diagram .image-shape {
+            background-color: rgba(232, 232, 232, 0.8);
+            text-align: center;
+        }
+        #diagram .icon-shape p,
+        #diagram .image-shape p {
+            background-color: rgba(232, 232, 232, 0.8);
+            padding: 2px;
+        }
+        #diagram .icon-shape .label rect,
+        #diagram .image-shape .label rect {
+            opacity: 0.5;
+            background-color: rgba(232, 232, 232, 0.8);
+            fill: rgba(232, 232, 232, 0.8);
+        }
+        #diagram .label-icon {
+            display: inline-block;
+            height: 1em;
+            overflow: visible;
+            vertical-align: -0.125em;
+        }
+        #diagram .node .label-icon path {
+            fill: currentColor;
+            stroke: revert;
+            stroke-width: revert;
+        }
+        #diagram .node .neo-node {
+            stroke: #9370db;
+        }
+        #diagram [data-look="neo"].node rect,
+        #diagram [data-look="neo"].cluster rect,
+        #diagram [data-look="neo"].node polygon {
+            stroke: #9370db;
+            filter: drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));
+        }
+        #diagram [data-look="neo"].swimlane.cluster rect {
+            filter: none;
+        }
+        #diagram [data-look="neo"].node path {
+            stroke: #9370db;
+            stroke-width: 1px;
+        }
+        #diagram [data-look="neo"].node .outer-path {
+            filter: drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));
+        }
+        #diagram [data-look="neo"].node .neo-line path {
+            stroke: #9370db;
+            filter: none;
+        }
+        #diagram [data-look="neo"].node circle {
+            stroke: #9370db;
+            filter: drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));
+        }
+        #diagram [data-look="neo"].node circle .state-start {
+            fill: #000000;
+        }
+        #diagram [data-look="neo"].icon-shape .icon {
+            fill: #9370db;
+            filter: drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));
+        }
+        #diagram [data-look="neo"].icon-shape .icon-neo path {
+            stroke: #9370db;
+            filter: drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));
+        }
+        #diagram :root {
+            --mermaid-font-family: "trebuchet ms", verdana, arial, sans-serif;
+        }
+    </style>
+
+    <text style="display:none">
+        ```mermaid
+        flowchart LR
+        J[Joystick]
+        C[Computer]
+
+        subgraph T[Trim box]
+        Q{trimmable axis?}
+        A[add offset]
+        P[pass through]
+        O[Output]
+        end
+
+        J --> Q
+        Q -- yes --> A
+        Q -- no --> P
+        A --> O
+        P --> O
+        O --> C
+        ```
+    </text>
+
+    <g>
+        <marker id="diagram-right-arrow" class="marker flowchart-v2" viewBox="0 0 10 10"
+            refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8"
+            orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath"
+                style="stroke-width: 1px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <marker id="diagram-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10"
+            refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8"
+            orient="auto">
+            <path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath"
+                style="stroke-width: 1px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <marker id="diagram-right-arrow-margin" class="marker flowchart-v2"
+            viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse"
+            markerWidth="10.5" markerHeight="14" orient="auto">
+            <path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath"
+                style="stroke-width: 0px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <marker id="diagram-pointStart-margin" class="marker flowchart-v2"
+            viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5"
+            markerHeight="14" orient="auto">
+            <polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath"
+                style="stroke-width: 0px; stroke-dasharray: 1px, 0px;"></polygon>
+        </marker>
+        <marker id="diagram-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10"
+            refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11"
+            orient="auto">
+            <circle cx="5" cy="5" r="5" class="arrowMarkerPath"
+                style="stroke-width: 1px; stroke-dasharray: 1px, 0px;"></circle>
+        </marker>
+        <marker id="diagram-circleStart" class="marker flowchart-v2"
+            viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11"
+            markerHeight="11" orient="auto">
+            <circle cx="5" cy="5" r="5" class="arrowMarkerPath"
+                style="stroke-width: 1px; stroke-dasharray: 1px, 0px;"></circle>
+        </marker>
+        <marker id="diagram-circleEnd-margin" class="marker flowchart-v2"
+            viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14"
+            markerHeight="14" orient="auto">
+            <circle cx="5" cy="5" r="5" class="arrowMarkerPath"
+                style="stroke-width: 0px; stroke-dasharray: 1px, 0px;"></circle>
+        </marker>
+        <marker id="diagram-circleStart-margin" class="marker flowchart-v2"
+            viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14"
+            markerHeight="14" orient="auto">
+            <circle cx="5" cy="5" r="5" class="arrowMarkerPath"
+                style="stroke-width: 0px; stroke-dasharray: 1px, 0px;"></circle>
+        </marker>
+        <marker id="diagram-crossEnd" class="marker cross flowchart-v2"
+            viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11"
+            markerHeight="11" orient="auto">
+            <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath"
+                style="stroke-width: 2px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <marker id="diagram-crossStart" class="marker cross flowchart-v2"
+            viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11"
+            markerHeight="11" orient="auto">
+            <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath"
+                style="stroke-width: 2px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <marker id="diagram-crossEnd-margin" class="marker cross flowchart-v2"
+            viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12"
+            markerHeight="12" orient="auto">
+            <path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath"
+                style="stroke-width: 2.5px;"></path>
+        </marker>
+        <marker id="diagram-crossStart-margin" class="marker cross flowchart-v2"
+            viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12"
+            markerHeight="12" orient="auto">
+            <path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath"
+                style="stroke-width: 2.5px; stroke-dasharray: 1px, 0px;"></path>
+        </marker>
+        <g class="root">
+            <g class="clusters">
+                <g class="cluster" id="diagram-T" data-look="classic">
+                    <rect style="" x="175.48333740234375" y="8" width="600"
+                        height="284"></rect>
+                    <g class="cluster-label" transform="translate(444, 8)">
+                        <foreignObject width="61.93333435058594" height="24">
+                            <div style="display: table-cell; white-space: nowrap; line-height: 1.5;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>Trim box</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </g>
+            <g class="edgePaths">
+                <path
+                    d="M125.483,150.158L129.65,150.158C133.817,150.158,142.15,150.158,150.483,150.158C158.817,150.158,167.15,150.158,174.817,150.158C182.483,150.158,189.483,150.158,192.983,150.158L196.483,150.158"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+                <path
+                    d="M341.908,124.95L352.201,120.485C362.494,116.019,383.081,107.089,400.257,102.624C417.433,98.158,431.2,98.158,438.083,98.158L444.967,98.158"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+                <path
+                    d="M341.908,175.367L352.201,179.832C362.494,184.297,383.081,193.228,398.799,197.693C414.517,202.158,425.367,202.158,430.792,202.158L436.217,202.158"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+                <path
+                    d="M582,98.158L587.625,98.158C593.25,98.158,604.5,98.158,615.972,101.962C627.445,105.765,639.14,113.371,644.987,117.174L650.834,120.977"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+                <path
+                    d="M590.75,202.158L594.917,202.158C599.083,202.158,607.417,202.158,617.431,198.355C627.445,194.552,639.14,186.946,644.987,183.142L650.834,179.339"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+                <path
+                    d="M750.65,150.158L754.817,150.158C758.983,150.158,767.317,150.158,775.65,150.158C783.983,150.158,792.317,150.158,799.983,150.158C807.65,150.158,814.65,150.158,818.15,150.158L821.65,150.158"
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    marker-end="url(#diagram-right-arrow)"></path>
+            </g>
+            <g class="edgeLabels">
+                <g class="edgeLabel" transform="translate(390, 94)">
+                    <text>yes</text>
+                </g>
+                <g class="edgeLabel" transform="translate(390, 214)">
+                    <text>no</text>
+                </g>
+            </g>
+            <g class="nodes">
+                <g class="node default" id="diagram-flowchart-J-0" data-look="classic"
+                    transform="translate(66.74166870117188, 150.15833282470703)">
+                    <rect class="basic label-container" style="" x="-58.741668701171875" y="-27"
+                        width="117.48333740234375" height="54"></rect>
+                    <g class="label" style="" transform="translate(-28.741668701171875, -12)">
+                        <rect></rect>
+                        <foreignObject width="57.48333740234375" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>Joystick</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="node default" id="diagram-flowchart-C-1" data-look="classic"
+                    transform="translate(890.8500061035156, 150.15833282470703)">
+                    <rect class="basic label-container" style="" x="-65.19999694824219" y="-27"
+                        width="130.39999389648438" height="54"></rect>
+                    <g class="label" style="" transform="translate(-35.19999694824219, -12)">
+                        <rect></rect>
+                        <foreignObject width="70.39999389648438" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>Computer</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="node default" id="diagram-flowchart-Q-2" data-look="classic"
+                    transform="translate(283.8000030517578, 150.15833282470703)">
+                    <polygon
+                        points="83.31666564941406,0 166.63333129882812,-83.31666564941406 83.31666564941406,-166.63333129882812 0,-83.31666564941406"
+                        class="label-container"
+                        transform="translate(-82.81666564941406, 83.31666564941406)"></polygon>
+                    <g class="label" style="" transform="translate(-56.31666564941406, -12)">
+                        <rect></rect>
+                        <foreignObject width="112.63333129882812" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>trimmable axis?</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="node default" id="diagram-flowchart-A-3" data-look="classic"
+                    transform="translate(515.4833450317383, 98.15833282470703)">
+                    <rect class="basic label-container" style="" x="-66.51667022705078" y="-27"
+                        width="133.03334045410156" height="54"></rect>
+                    <g class="label" style="" transform="translate(-36.51667022705078, -12)">
+                        <rect></rect>
+                        <foreignObject width="73.03334045410156" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>add offset</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="node default" id="diagram-flowchart-P-4" data-look="classic"
+                    transform="translate(515.4833450317383, 202.15833282470703)">
+                    <rect class="basic label-container" style="" x="-75.26667022705078" y="-27"
+                        width="150.53334045410156" height="54"></rect>
+                    <g class="label" style="" transform="translate(-45.26667022705078, -12)">
+                        <rect></rect>
+                        <foreignObject width="90.53334045410156" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>pass through</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="node default" id="diagram-flowchart-O-5" data-look="classic"
+                    transform="translate(695.7000122070312, 150.15833282470703)">
+                    <rect class="basic label-container" style="" x="-54.94999694824219" y="-27"
+                        width="109.89999389648438" height="54"></rect>
+                    <g class="label" style="" transform="translate(-24.949996948242188, -12)">
+                        <rect></rect>
+                        <foreignObject width="49.899993896484375" height="24">
+                            <div
+                                style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"
+                                xmlns="http://www.w3.org/1999/xhtml">
+                                <span class="nodeLabel">
+                                    <p>Output</p>
+                                </span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+    <defs>
+        <filter id="diagram-drop-shadow" height="130%" width="130%">
+            <feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow>
+        </filter>
+    </defs>
+    <defs>
+        <filter id="diagram-drop-shadow-small" height="150%" width="150%">
+            <feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow>
+        </filter>
+    </defs>
+</svg>

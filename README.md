@@ -10,28 +10,7 @@ So let's make a trim box that literally offsets our elevator, aileron, and rudde
 
 USB devices are just digital signal boxes, so it should be entirely possible to make something that sits between our stick/yoke and the computer, reading every signal that it sees from the stick/yoke and passing those values on, _except_ when it sees values associated with the pitch, roll, and yaw axes. For those, we want it to first add or subtract a trim offset, and _then_ pass the value on.
 
-```mermaid
-flowchart LR
-    J[Joystick]
-    C[Computer]
-
-    subgraph T[Trim box]
-        Q{trimmable axis?}
-        A[add offset]
-        P[pass through]
-        O[Output]
-    end
-
-    J --> Q
-    Q -- yes --> A
-    Q -- no --> P
-    A --> O
-    P --> O
-    O --> C
-
-```
-
-
+![Our data flow chart](./images/diagram.svg)
 
 So we'll need something that we can plug between the stick/yoke and computer: an Arduino Leonardo with a USB host shield will work fine for that.
 

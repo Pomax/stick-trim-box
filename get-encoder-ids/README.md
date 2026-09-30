@@ -1,0 +1,3 @@
+# Get your rotary encoder IDs
+
+Load this sketch onto your Arduino Leonardo with your encoders chained up, and then run the serial monitor at 115200: you will be prompted to turn controllers for each role in the trim box (coarse and fine control for pitch, aileron, and rudder), and after you've twiddled all of them, the sketch will spit out the line of code you can copy into the `trim-control.ino` file.
